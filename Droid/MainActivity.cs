@@ -1,29 +1,31 @@
 ﻿using Android.App;
 using Android.Widget;
 using Android.OS;
-using Android.Views;
 
 using ObservableTables.ViewModel;
 
 using GalaSoft.MvvmLight.Helpers;
+using Android.Support.V7.Widget;
 
 namespace ObservableTables.Droid
 {
 	[Activity (Label = "Tasks", Theme = "@style/AppTheme", MainLauncher = true, Icon = "@mipmap/icon")]
 	public class MainActivity : Activity
 	{
-		private ListView taskList;
+        private RecyclerView taskRecyclerView;
+        private ObservableRecyclerAdapter<TaskModel, CachingViewHolder> adapter;
 
 		private Button addTaskButton;
 
-		public ListView TaskList
-		{
-			get
-			{
-				return taskList
-					?? (taskList = FindViewById<ListView>(Resource.Id.tasksListView));
-			}
-		}
+		public RecyclerView TaskRecyclerView
+        {
+            get
+            {
+                return taskRecyclerView ??
+                  (taskRecyclerView = FindViewById<RecyclerView>(
+                        Resource.Id.tasksRecyclerView));
+            }
+        }
 
 		public Button AddTaskButton
 		{
@@ -54,7 +56,15 @@ namespace ObservableTables.Droid
 			SetActionBar (toolbar);
 
 			Vm.Initialize ();
-			TaskList.Adapter = Vm.TodoTasks.GetAdapter(GetTaskAdapter);
+
+            TaskRecyclerView.SetLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.Vertical, false));
+
+            // Create the adapter using the default CachingViewHolder
+            adapter = Vm.TodoTasks.GetRecyclerAdapter(
+                BindViewHolder,
+                Resource.Layout.TaskTemplate);
+
+            TaskRecyclerView.SetAdapter(adapter);
 
 			//ensure that the Event will be present
 			AddTaskButton.Click += (sender, e) => {};
@@ -65,19 +75,14 @@ namespace ObservableTables.Droid
 				Vm.AddTaskCommand);
 		}
 
-		private View GetTaskAdapter(int position, TaskModel taskModel, View convertView)
-		{
-			// Not reusing views here
-			convertView = LayoutInflater.Inflate(Resource.Layout.TaskTemplate, null);
+        private void BindViewHolder(CachingViewHolder holder, TaskModel taskModel, int position)
+        {
+            var name = holder.FindCachedViewById<TextView>(Resource.Id.NameTextView);
+            name.Text = taskModel.Name;
 
-			var title = convertView.FindViewById<TextView>(Resource.Id.NameTextView);
-			title.Text = taskModel.Name;
-
-			var desc = convertView.FindViewById<TextView>(Resource.Id.NotesTextView);
-			desc.Text = taskModel.Notes;
-
-			return convertView;
-		}
+            var desc = holder.FindCachedViewById<TextView>(Resource.Id.NotesTextView);
+            desc.Text = taskModel.Notes;
+        }
 	}
 }
 

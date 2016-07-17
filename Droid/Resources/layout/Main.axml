@@ -25,10 +25,8 @@
             android:textSize="24dp"
             android:layout_gravity="right" />
     </Toolbar>
-    <ListView
-        android:minWidth="25px"
-        android:minHeight="25px"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/tasksRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/tasksListView" />
+        android:layout_height="match_parent" />
 </LinearLayout>
