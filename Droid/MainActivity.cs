@@ -77,11 +77,34 @@ namespace ObservableTables.Droid
 
         private void BindViewHolder(CachingViewHolder holder, TaskModel taskModel, int position)
         {
+            // if the data source doesn't change use the simpler form below
+            //var name = holder.FindCachedViewById<TextView>(Resource.Id.NameTextView);
+            //name.Text = taskModel.Name;
+
+            //var desc = holder.FindCachedViewById<TextView>(Resource.Id.NotesTextView);
+            //desc.Text = taskModel.Notes;
+
             var name = holder.FindCachedViewById<TextView>(Resource.Id.NameTextView);
-            name.Text = taskModel.Name;
+            holder.DeleteBinding(name);
+
+            var nameBinding = new Binding<string, string>(taskModel,
+                                                          () => taskModel.Name,
+                                                          name,
+                                                          () => name.Text,
+                                                          BindingMode.OneWay);
+            
+            holder.SaveBinding(name, nameBinding);
 
             var desc = holder.FindCachedViewById<TextView>(Resource.Id.NotesTextView);
-            desc.Text = taskModel.Notes;
+            holder.DeleteBinding(desc);
+
+            var descBinding = new Binding<string, string>(taskModel,
+                                                          () => taskModel.Notes,
+                                                          desc,
+                                                          () => desc.Text,
+                                                          BindingMode.OneWay);
+
+            holder.SaveBinding(desc, descBinding);
         }
 	}
 }
